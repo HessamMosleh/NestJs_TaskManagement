@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 
 import { Request, Response } from 'express';
-import { ErrorException } from './errorException';
 
 @Catch(HttpException)
 export class ErrorFilter implements ExceptionFilter {
@@ -21,27 +20,37 @@ export class ErrorFilter implements ExceptionFilter {
     let isOperational = exception.getResponse().isOperational || false;
     // const url =request.url
 
-    if (!isOperational)
-      switch (status) {
-        case HttpStatus.FORBIDDEN:
-          isOperational = true;
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          isOperational = true;
+    if (process.env.NODE_ENV === 'production') {
+      if (!isOperational)
+        switch (status) {
+          case HttpStatus.FORBIDDEN:
+            isOperational = true;
+            break;
+          case HttpStatus.UNAUTHORIZED:
+            isOperational = true;
+        }
+
+      if (!isOperational) {
+        if (exception.message != undefined)
+          console.log(`Unsupported Err: ${exception.message}`);
+        return response.status(500).json({
+          statusCode: 500,
+          message: 'something is very wrong',
+        });
       }
 
-    if (!isOperational) {
-      if (exception.message != undefined)
-        console.log(`Unsupported Err: ${exception.message}`);
-      return response.status(500).json({
-        statusCode: 500,
-        message: 'something is very wrong',
+      response.status(status).json({
+        statusCode: status,
+        message: exception.message,
+      });
+    } else {
+      response.status(status).json({
+        statusCode: status,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        message: exception.getResponse().message || exception.message,
+        stack: exception.stack,
       });
     }
-
-    response.status(status).json({
-      statusCode: status,
-      message: exception.message,
-    });
   }
 }

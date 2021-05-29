@@ -9,7 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
-  // app.useGlobalFilters(new ErrorFilter());
+  app.useGlobalFilters(new ErrorFilter());
   const port = configService.get('PORT');
   await app.listen(port);
   logger.log(`Application liston on port: ${port}`);
