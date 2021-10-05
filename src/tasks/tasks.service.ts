@@ -21,21 +21,7 @@ export class TasksService {
     filterDto: GetTaskFilterDto,
     user: UserEntity,
   ): Promise<TaskEntity[]> {
-    const { status, search } = filterDto;
-    const query = this.taskRepository.createQueryBuilder('task');
-
-    query.where('task.user = :user', { user: user.id });
-
-    if (status) query.andWhere('task.status = :status', { status });
-
-    if (search)
-      //LIKE is caseSensitive & ILIKE is caseInsensitive
-      query.andWhere(
-        '(task.title ILIKE :search OR task.description LIKE :search)',
-        { search: `%${search}%` },
-      );
-
-    return await query.getMany();
+    return await this.taskRepository.getTasks(filterDto, user);
   }
 
   //

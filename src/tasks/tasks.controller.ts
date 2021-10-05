@@ -21,7 +21,7 @@ import { TaskEntity } from './task.entity';
 import { TaskStatus } from './task-status.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/decorator/get-user.decorator';
-import { UserEntity } from '../auth/user.entity';
+import { UserEntity, UserRole } from '../auth/user.entity';
 import { RolesGuard } from '../auth/roles.gurd';
 import { Roles } from '../auth/decorator/roles.decorator';
 
@@ -48,7 +48,7 @@ export class TasksController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  @Roles('Admin')
+  @Roles(UserRole.ADMIN)
   createTask(
     @Body() createTaskDto: CreateTaskDto,
     @GetUser() user: UserEntity,
